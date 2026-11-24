@@ -39,6 +39,68 @@ public Process SelectNextTier2Process(int currentTime){
     tier2Queue.remove(selected);
     return selected ;
 }
+
+// Runs one Tier 1 Round Robin turn.
+// An unfinished process is demoted after consuming its full quantum.
+public int executeTier1Turn(
+        List<Process> tier1Queue,
+        int quantum,
+        int currentTime,
+        int cs,
+        Process lastExecuted,
+        List<Process> allProcesses) {
+
+    if (quantum <= 0) {
+        throw new IllegalArgumentException(
+                "Quantum must be greater than 0.");
+    }
+    if (cs < 0) {
+        throw new IllegalArgumentException(
+                "Context switch time cannot be negative.");
+    }
+
+    // Add processes that arrived at the current time.
+    admitArrivalsAtTick(currentTime, allProcesses, tier1Queue);
+
+    if (tier1Queue.isEmpty()) {
+        return currentTime;
+    }
+
+    // Take the process at the front of Tier 1.
+    Process p = tier1Queue.remove(0);
+
+    // Charge context-switch time when switching between processes.
+    if (lastExecuted != null && lastExecuted != p) {
+        for (int i = 0; i < cs; i++) {
+            admitArrivalsAtTick(currentTime, allProcesses, tier1Queue);
+            logTimeStep(currentTime, null, tier1Queue);
+            currentTime++;
+        }
+    }
+
+    p.markStarted(currentTime);
+
+    // Run for the quantum or until the process finishes.
+    int runTime = Math.min(quantum, p.remainingTime);
+
+    for (int i = 0; i < runTime; i++) {
+        admitArrivalsAtTick(currentTime, allProcesses, tier1Queue);
+        logTimeStep(currentTime, p, tier1Queue);
+
+        p.executeOneUnit();
+        currentTime++;
+    }
+
+    if (p.isCompleted()) {
+        p.markCompleted(currentTime);
+    } else {
+        // The assignment demotes unfinished processes after a full quantum.
+        MoveTotier2(p, currentTime);
+    }
+
+    return currentTime;
+}
+
 public int executeProcess(Process p ,int currentTime,
             int cs,
             Process lastExecuted,
@@ -84,7 +146,7 @@ private void admitArrivalsAtTick(int currentTime, List<Process> allProcesses, Li
     //
 private void logTimeStep(int time, Process running, List<Process> tier1Queue) {
         StringBuilder sb = new StringBuilder();
-        sb.append("T=").append(time).append(" | Running: ").append(running.id);
+        sb.append("T=").append(time).append(" | Running: ").append(running == null ? "CS" : running.id);
         sb.append(" | Tier 1: [");
         for (int i = 0; i < tier1Queue.size(); i++) {
             Process t1 = tier1Queue.get(i);
