@@ -11,6 +11,14 @@ public class SJFScheduler {
 
     public SJFScheduler(List<Process> processes,int contextSwitchTime) {
 
+        if (processes == null) {
+        throw new IllegalArgumentException("Process list cannot be null.");
+    }
+
+    if (contextSwitchTime < 0) {
+        throw new IllegalArgumentException("Context switch time cannot be negative.");
+    }
+
         this.processes = processes;
         this.contextSwitchTime = contextSwitchTime;
         this.currentTime = 0;

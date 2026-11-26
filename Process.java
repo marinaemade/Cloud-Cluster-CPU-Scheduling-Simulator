@@ -1,17 +1,28 @@
 public class Process{
-    String id;
+    String id;  //Process name P1, P2,..
     int arrivalTime;
-    int burstTime;
+    int burstTime;  //Total CPU time the process needs
     int remainingTime;
     int priority;
+
     int firstStartTime;
     int completionTime;
-    int currentPriority;
-    int tier2EntryTime;
+
+    int currentPriority; // Used by ACS: the priority after applying aging
+    int tier2EntryTime; // The time this process entered Tier 2
 
 
     public Process(String id, int arrivalTime,
-                int burstTime, int priority) {
+        int burstTime, int priority) {
+            if (id == null ) {
+            throw new IllegalArgumentException("Process ID cannot be empty.");
+        }
+        if (arrivalTime < 0 || burstTime <= 0 || priority <= 0) {
+            throw new IllegalArgumentException(
+                "Arrival must be >= 0, burst and priority must be > 0"
+            );
+        }
+
 
         this.id = id;
         this.arrivalTime = arrivalTime;
@@ -28,6 +39,7 @@ public class Process{
         return completionTime - arrivalTime;
     }
 
+    // Includes time spent waiting and context-switching
     public int getWaitingTime() {
         return getTurnaroundTime() - burstTime;
     }
@@ -36,6 +48,7 @@ public class Process{
        return firstStartTime - arrivalTime;
     }
 
+    // Record only the first time the process gets the CPU
     public void markStarted(int currentTime) {
         if (firstStartTime == -1) {
             firstStartTime = currentTime;
@@ -64,4 +77,5 @@ public class Process{
         currentPriority = priority;
         tier2EntryTime = -1;
     }
+
 }
