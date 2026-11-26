@@ -62,7 +62,7 @@ public class SJFScheduler {
                     timeline.add("CS");
                     currentTime++;
                 }
-                shortest = findShortestProcess();
+                
             }
 
             shortest.markStarted(currentTime);

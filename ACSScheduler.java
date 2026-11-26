@@ -273,5 +273,9 @@ public class ACSScheduler {
     public List<Process> getTier2Queue() {
         return tier2Queue;
     }
-
+public void reset() {
+    tier2Queue.clear();
+    timeline.clear();
+    selectedIndex = 0;
+}
 }

@@ -77,5 +77,7 @@ public class Process{
         currentPriority = priority;
         tier2EntryTime = -1;
     }
-
+    public int getResponseTime() {
+    return firstStartTime == -1 ? -1 : firstStartTime - arrivalTime;
+}
 }

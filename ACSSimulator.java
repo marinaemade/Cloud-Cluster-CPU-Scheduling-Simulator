@@ -119,4 +119,7 @@ public class ACSSimulator {
         }
         return total / processes.size();
     }
+    public List<Process> getProcesses() {
+    return processes;
+}
 }
